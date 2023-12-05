@@ -1,1 +1,967 @@
+Foundations for efficiencies
 
+Welcome!
+
+# Print the list created using the Non-Pythonic approach
+i = 0
+new_list= []
+while i < len(names):
+    if len(names[i]) >= 6:
+        new_list.append(names[i])
+    i += 1
+print(new_list)
+
+['Kramer', 'Elaine', 'George', 'Newman']
+-------------------------------------------------
+# Print the list created by looping over the contents of names
+better_list = []
+for name in names:
+    if len(name) >= 6:
+        better_list.append(name)
+print(better_list)
+
+['Kramer', 'Elaine', 'George', 'Newman']
+-------------------------------------------------
+# Print the list created by using list comprehension
+best_list = [name for name in names if len(name) >= 6]
+print(best_list)
+
+['Kramer', 'Elaine', 'George', 'Newman']
+-------------------------------------------------
+
+Building with built-ins
+
+# Create a range object that goes from 0 to 5
+nums = range(6)
+print(type(nums))
+
+<class 'range'>
+-------------------------------------------------
+# Convert nums to a list
+nums_list = list(nums)
+print(nums_list)
+
+[0, 1, 2, 3, 4, 5]
+-------------------------------------------------
+# Create a new list of odd numbers from 1 to 11 by unpacking a range object
+nums_list2 = [*range(1,12,2)]
+print(nums_list2)
+
+[1, 3, 5, 7, 9, 11]
+-------------------------------------------------
+# Rewrite the for loop to use enumerate
+indexed_names = []
+for i,name in enumerate(names):
+    index_name = (i,name)
+    indexed_names.append(index_name) 
+print(indexed_names)
+
+[(0, 'Jerry'), (1, 'Kramer'), (2, 'Elaine'), (3, 'George'), (4, 'Newman')]
+-------------------------------------------------
+# Rewrite the above for loop using list comprehension
+indexed_names_comp = [(i,name) for i,name in enumerate(names)]
+print(indexed_names_comp)
+
+[(0, 'Jerry'), (1, 'Kramer'), (2, 'Elaine'), (3, 'George'), (4, 'Newman')]
+-------------------------------------------------
+# Unpack an enumerate object with a starting index of one
+indexed_names_unpack = [*enumerate(names, start=1)]
+print(indexed_names_unpack)
+
+[(1, 'Jerry'), (2, 'Kramer'), (3, 'Elaine'), (4, 'George'), (5, 'Newman')]
+-------------------------------------------------
+# Use map to apply str.upper to each element in names
+names_map  = map(str.upper, names)
+
+# Print the type of the names_map
+print(type(names_map))
+
+# Unpack names_map into a list
+names_uppercase = [*names_map]
+
+# Print the list created above
+print(names_uppercase)
+
+<class 'map'>
+['JERRY', 'KRAMER', 'ELAINE', 'GEORGE', 'NEWMAN']
+-------------------------------------------------
+
+The power of NumPy arrays
+
+[[ 1  2  3  4  5]
+ [ 6  7  8  9 10]]
+
+# Print second row of nums
+print(nums[:,1])
+
+# Print all elements of nums that are greater than six
+print(nums[nums > 6])
+
+# Double every element of nums
+nums_dbl = nums * 2
+print(nums_dbl)
+
+# Replace the third column of nums
+nums[:,2] = nums[:,2] + 1
+print(nums)
+
+[2 7]
+[ 7  8  9 10]
+[[ 2  4  6  8 10]
+ [12 14 16 18 20]]
+[[ 1  2  4  4  5]
+ [ 6  7  9  9 10]]
+-------------------------------------------------
+# Create a list of arrival times
+arrival_times = [np.arange(10, 51, 10)]
+print(arrival_times)
+
+[array([10, 20, 30, 40, 50])]
+-------------------------------------------------
+# Create a list of arrival times
+arrival_times = [*range(10,60,10)]
+
+# Convert arrival_times to an array and update the times
+arrival_times_np = np.array(arrival_times)
+new_times = arrival_times_np - 3
+print(new_times)
+
+[ 7 17 27 37 47]
+-------------------------------------------------
+# Create a list of arrival times
+arrival_times = [*range(10,60,10)]
+
+# Convert arrival_times to an array and update the times
+arrival_times_np = np.array(arrival_times)
+new_times = arrival_times_np - 3
+
+# Use list comprehension and enumerate to pair guests to new times
+guest_arrivals = [(names[guests],time) for guests,time in enumerate(new_times)]
+print(guest_arrivals)
+
+[('Jerry', 7), ('Kramer', 17), ('Elaine', 27), ('George', 37), ('Newman', 47)]
+-------------------------------------------------
+# Create a list of arrival times
+arrival_times = [*range(10,60,10)]
+
+# Convert arrival_times to an array and update the times
+arrival_times_np = np.array(arrival_times)
+new_times = arrival_times_np - 3
+
+# Use list comprehension and enumerate to pair guests to new times
+guest_arrivals = [(names[i],time) for i,time in enumerate(new_times)]
+
+# Map the welcome_guest function to each (guest,time) pair
+welcome_map = map(welcome_guest, guest_arrivals)
+
+guest_welcomes = [*welcome_map]
+print(*guest_welcomes, sep='\n')
+
+Welcome to Festivus Jerry... You're 7 min late.
+Welcome to Festivus Kramer... You're 17 min late.
+Welcome to Festivus Elaine... You're 27 min late.
+Welcome to Festivus George... You're 37 min late.
+Welcome to Festivus Newman... You're 47 min late.
+===================================================================================================
+
+Timing and profiling code
+
+Examining runtime
+
+# Create a list of integers (0-50) using list comprehension
+nums_list_comp = [num for num in range(0,51)]
+print(nums_list_comp)
+
+[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50]
+-------------------------------------------------
+# Create a list of integers (0-50) using list comprehension
+nums_list_comp = [num for num in range(51)]
+print(nums_list_comp)
+
+# Create a list of integers (0-50) by unpacking range
+nums_unpack = [range(0,51)]
+print(nums_unpack)
+
+[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50]
+[range(0, 51)]
+-------------------------------------------------
+# Create a list using the formal name
+formal_list = (list())
+print(formal_list)
+
+# Create a list using the literal syntax
+literal_list = ([])
+print(literal_list)
+
+[]
+[]
+-------------------------------------------------
+# Create a list using the formal name
+formal_list = list()
+print(formal_list)
+
+# Create a list using the literal syntax
+literal_list = []
+print(literal_list)
+
+# Print out the type of formal_list
+print(type(formal_list))
+
+# Print out the type of literal_list
+print(type(literal_list))
+
+[]
+[]
+<class 'list'>
+<class 'list'>
+-------------------------------------------------
+
+Code profiling for memory usage
+
+# Use get_publisher_heroes() to gather Star Wars heroes
+star_wars_heroes = get_publisher_heroes(heroes, publishers, desired_publisher='George Lucas')
+
+print(star_wars_heroes)
+print(type(star_wars_heroes))
+
+# Use get_publisher_heroes_np() to gather Star Wars heroes
+star_wars_heroes_np = get_publisher_heroes_np(heroes, publishers, desired_publisher='George Lucas')
+
+print(star_wars_heroes_np)
+print(type(star_wars_heroes_np))
+
+['Darth Vader', 'Han Solo', 'Luke Skywalker', 'Yoda']
+<class 'list'>
+['Darth Vader' 'Han Solo' 'Luke Skywalker' 'Yoda']
+<class 'numpy.ndarray'>
+===================================================================================================
+
+Gaining efficiencies
+
+Efficiently combining, counting, and iterating
+
+The first five items in the names list are: ['Abomasnow', 'Abra', 'Absol', 'Accelgor', 'Aerodactyl']
+
+The first five items in the primary_types list are: ['Grass', 'Psychic', 'Dark', 'Bug', 'Rock']
+
+The first five items in the secondary_types list are: ['Ice', nan, nan, nan, 'Flying']
+
+# Combine names and primary_types
+names_type1 = [*zip(names, primary_types)]
+
+print(*names_type1[:5], sep='\n')
+
+('Abomasnow', 'Grass')
+('Abra', 'Psychic')
+('Absol', 'Dark')
+('Accelgor', 'Bug')
+('Aerodactyl', 'Rock')
+-------------------------------------------------
+# Collect the count of primary types
+type_count = Counter(primary_types)
+print(type_count, '\n')
+
+# Collect the count of generations
+gen_count = Counter(generations)
+print(gen_count, '\n')
+
+# Use list comprehension to get each Pokémon's starting letter
+starting_letters = [name[0] for name in names]
+
+# Collect the count of Pokémon for each starting_letter
+starting_letters_count = Counter(starting_letters)
+print(starting_letters_count)
+
+Counter({'Water': 66, 'Normal': 64, 'Bug': 51, 'Grass': 47, 'Psychic': 31, 'Rock': 29, 'Fire': 27, 'Electric': 25, 'Ground': 23, 'Fighting': 23, 'Poison': 22, 'Steel': 18, 'Ice': 16, 'Fairy': 16, 'Dragon': 16, 'Ghost': 13, 'Dark': 13}) 
+
+Counter({5: 122, 3: 103, 1: 99, 4: 78, 2: 51, 6: 47}) 
+
+Counter({'S': 83, 'C': 46, 'D': 33, 'M': 32, 'L': 29, 'G': 29, 'B': 28, 'P': 23, 'A': 22, 'K': 20, 'E': 19, 'W': 19, 'T': 19, 'F': 18, 'H': 15, 'R': 14, 'N': 13, 'V': 10, 'Z': 8, 'J': 7, 'I': 4, 'O': 3, 'Y': 3, 'U': 2, 'X': 1})
+-------------------------------------------------
+['Geodude', 'Cubone', 'Lickitung', 'Persian', 'Diglett']
+
+# Import combinations from itertools
+from itertools import combinations
+
+# Create a combination object with pairs of Pokémon
+combos_obj = combinations(pokemon, 2)
+print(type(combos_obj), '\n')
+
+# Convert combos_obj to a list by unpacking
+combos_2 = [*combos_obj]
+print(combos_2, '\n')
+
+# Collect all possible combinations of 4 Pokémon directly into a list
+combos_4 = [*combinations(pokemon, 4)]
+print(combos_4)
+
+<class 'itertools.combinations'> 
+
+[('Geodude', 'Cubone'), ('Geodude', 'Lickitung'), ('Geodude', 'Persian'), ('Geodude', 'Diglett'), ('Cubone', 'Lickitung'), ('Cubone', 'Persian'), ('Cubone', 'Diglett'), ('Lickitung', 'Persian'), ('Lickitung', 'Diglett'), ('Persian', 'Diglett')] 
+
+[('Geodude', 'Cubone', 'Lickitung', 'Persian'), ('Geodude', 'Cubone', 'Lickitung', 'Diglett'), ('Geodude', 'Cubone', 'Persian', 'Diglett'), ('Geodude', 'Lickitung', 'Persian', 'Diglett'), ('Cubone', 'Lickitung', 'Persian', 'Diglett')]
+-------------------------------------------------
+
+Set theory
+
+ash_pokedex  :  ['Pikachu', 'Bulbasaur', 'Koffing', 'Spearow', 'Vulpix', 'Wigglytuff', 'Zubat', 'Rattata', 'Psyduck', 'Squirtle'] 
+
+misty_pokedex:  ['Krabby', 'Horsea', 'Slowbro', 'Tentacool', 'Vaporeon', 'Magikarp', 'Poliwag', 'Starmie', 'Psyduck', 'Squirtle']
+# Convert both lists to sets
+ash_set = set(ash_pokedex)
+misty_set = set(misty_pokedex)
+
+# Find the Pokémon that exist in both sets
+both = ash_set.intersection(misty_set)
+print(both)
+
+# Find the Pokémon that Ash has and Misty does not have
+ash_only = ash_set.difference(misty_set)
+print(ash_only)
+
+# Find the Pokémon that are in only one set (not both)
+unique_to_set = ash_set.symmetric_difference(misty_set)
+print(unique_to_set)
+
+{'Psyduck', 'Squirtle'}
+{'Bulbasaur', 'Wigglytuff', 'Spearow', 'Koffing', 'Pikachu', 'Zubat', 'Rattata', 'Vulpix'}
+{'Magikarp', 'Krabby', 'Bulbasaur', 'Wigglytuff', 'Vulpix', 'Spearow', 'Vaporeon', 'Koffing', 'Pikachu', 'Tentacool', 'Poliwag', 'Starmie', 'Slowbro', 'Zubat', 'Rattata', 'Horsea'}
+-------------------------------------------------
+# Convert Brock's Pokédex to a set
+brock_pokedex_set = set(brock_pokedex)
+print(brock_pokedex_set)
+
+{'Geodude', 'Machop', 'Kabutops', 'Tauros', 'Golem', 'Onix', 'Zubat', 'Omastar', 'Dugtrio', 'Vulpix'}
+-------------------------------------------------
+# Convert Brock's Pokédex to a set
+brock_pokedex_set = set(brock_pokedex)
+print(brock_pokedex_set)
+
+# Check if Psyduck is in Ash's list and Brock's set
+print('Psyduck' in ash_pokedex)
+print('Psyduck' in brock_pokedex_set)
+
+{'Geodude', 'Machop', 'Kabutops', 'Tauros', 'Golem', 'Onix', 'Zubat', 'Omastar', 'Dugtrio', 'Vulpix'}
+True
+False
+-------------------------------------------------
+# Use the provided function to collect unique Pokémon names
+uniq_names_func = set(names)
+print(len(uniq_names_func))
+
+368
+-------------------------------------------------
+# Use find_unique_items() to collect unique Pokémon names
+uniq_names_func = find_unique_items(names)
+print(len(uniq_names_func))
+
+# Convert the names list to a set to collect unique Pokémon names
+uniq_names_set = set(names)
+print(len(uniq_names_set))
+
+# Check that both unique collections are equivalent
+print(sorted(uniq_names_func) == sorted(uniq_names_set))
+
+# Use the best approach to collect unique primary types and generations
+uniq_types = set(primary_types) 
+uniq_gens = set(generations) 
+print(uniq_types, uniq_gens, sep='\n') 
+
+368
+368
+True
+{'Ghost', 'Water', 'Fire', 'Normal', 'Electric', 'Ice', 'Psychic', 'Rock', 'Fighting', 'Fairy', 'Bug', 'Steel', 'Grass', 'Dark', 'Poison', 'Dragon', 'Ground'}
+{1, 2, 3, 4, 5, 6}
+-------------------------------------------------
+
+Eliminating loops
+
+# Collect Pokémon that belong to generation 1 or generation 2
+gen1_gen2_pokemon = [name for name,gen in zip(poke_names, poke_gens) if gen < 3]
+
+# Create a map object that stores the name lengths
+name_lengths_map = map(len, gen1_gen2_pokemon)
+
+# Combine gen1_gen2_pokemon and name_lengths_map into a list
+gen1_gen2_name_lengths = [*zip(gen1_gen2_pokemon, name_lengths_map)]
+
+print(gen1_gen2_name_lengths_loop[:5])
+print(gen1_gen2_name_lengths[:5])
+
+[('Abra', 4), ('Aerodactyl', 10), ('Aipom', 5), ('Alakazam', 8), ('Ampharos', 8)]
+[('Abra', 4), ('Aerodactyl', 10), ('Aipom', 5), ('Alakazam', 8), ('Ampharos', 8)]
+-------------------------------------------------
+# Create a total stats array
+total_stats_np = stats.sum(axis=1)
+
+# Create an average stats array
+avg_stats_np = stats.mean(axis=1)
+
+# Combine names, total_stats_np, and avg_stats_np into a list
+poke_list_np = [*zip(names, total_stats_np, avg_stats_np)]
+
+print(poke_list_np == poke_list, '\n')
+print(poke_list_np[:3])
+print(poke_list[:3], '\n')
+top_3 = sorted(poke_list_np, key=lambda x: x[1], reverse=True)[:3]
+print('3 strongest Pokémon:\n{}'.format(top_3))
+
+True 
+
+[('Abomasnow', 494, 82.33333333333333), ('Abra', 310, 51.666666666666664), ('Absol', 465, 77.5)]
+[('Abomasnow', 494, 82.33333333333333), ('Abra', 310, 51.666666666666664), ('Absol', 465, 77.5)] 
+
+3 strongest Pokémon:
+[('GroudonPrimal Groudon', 770, 128.33333333333334), ('KyogrePrimal Kyogre', 770, 128.33333333333334), ('Arceus', 720, 120.0)]
+-------------------------------------------------
+
+Writing better loops
+
+# Import Counter
+from collections import Counter
+
+# Collect the count of each generation
+gen_counts = Counter(generations)
+
+# Improve for loop by moving one calculation above the loop
+total_count = len(generations)
+
+for gen,count in gen_counts.items():
+    gen_percent = round(count / total_count * 100, 2)
+    print('generation {}: count = {:3} percentage = {}'
+          .format(gen, count, gen_percent))
+
+generation 4: count = 112 percentage = 15.56
+generation 1: count = 151 percentage = 20.97
+generation 3: count = 136 percentage = 18.89
+generation 5: count = 154 percentage = 21.39
+generation 2: count =  99 percentage = 13.75
+generation 6: count =  68 percentage = 9.44
+-------------------------------------------------
+Possible Pokémon types: ['Bug', 'Dark', 'Dragon', 'Electric', 'Fairy', 'Fighting', 'Fire', 'Flying', 'Ghost', 'Grass', 'Ground', 'Ice', 'Normal', 'Poison', 'Psychic', 'Rock', 'Steel', 'Water']
+
+# Collect all possible pairs using combinations()
+possible_pairs = [*combinations(pokemon_types, 2)]
+
+# Create an empty list called enumerated_tuples
+enumerated_tuples = []
+
+# Append each enumerated_pair_tuple to the empty list above
+for i,pair in enumerate(possible_pairs, 1):
+    enumerated_pair_tuple = (i,) + pair
+    enumerated_tuples.append(enumerated_pair_tuple)
+
+# Convert all tuples in enumerated_tuples to a list
+enumerated_pairs = [*map(list, enumerated_tuples)]
+print(enumerated_pairs)
+
+[[1, 'Bug', 'Dark'], [2, 'Bug', 'Dragon'], [3, 'Bug', 'Electric'], [4, 'Bug', 'Fairy'], [5, 'Bug', 'Fighting'], [6, 'Bug', 'Fire'], [7, 'Bug', 'Flying'], [8, 'Bug', 'Ghost'], [9, 'Bug', 'Grass'], [10, 'Bug', 'Ground'], [11, 'Bug', 'Ice'], [12, 'Bug', 'Normal'], [13, 'Bug', 'Poison'], [14, 'Bug', 'Psychic'], [15, 'Bug', 'Rock'], [16, 'Bug', 'Steel'], [17, 'Bug', 'Water'], [18, 'Dark', 'Dragon'], [19, 'Dark', 'Electric'], [20, 'Dark', 'Fairy'], [21, 'Dark', 'Fighting'], [22, 'Dark', 'Fire'], [23, 'Dark', 'Flying'], [24, 'Dark', 'Ghost'], [25, 'Dark', 'Grass'], [26, 'Dark', 'Ground'], [27, 'Dark', 'Ice'], [28, 'Dark', 'Normal'], [29, 'Dark', 'Poison'], [30, 'Dark', 'Psychic'], [31, 'Dark', 'Rock'], [32, 'Dark', 'Steel'], [33, 'Dark', 'Water'], [34, 'Dragon', 'Electric'], [35, 'Dragon', 'Fairy'], [36, 'Dragon', 'Fighting'], [37, 'Dragon', 'Fire'], [38, 'Dragon', 'Flying'], [39, 'Dragon', 'Ghost'], [40, 'Dragon', 'Grass'], [41, 'Dragon', 'Ground'], [42, 'Dragon', 'Ice'], [43, 'Dragon', 'Normal'], [44, 'Dragon', 'Poison'], [45, 'Dragon', 'Psychic'], [46, 'Dragon', 'Rock'], [47, 'Dragon', 'Steel'], [48, 'Dragon', 'Water'], [49, 'Electric', 'Fairy'], [50, 'Electric', 'Fighting'], [51, 'Electric', 'Fire'], [52, 'Electric', 'Flying'], [53, 'Electric', 'Ghost'], [54, 'Electric', 'Grass'], [55, 'Electric', 'Ground'], [56, 'Electric', 'Ice'], [57, 'Electric', 'Normal'], [58, 'Electric', 'Poison'], [59, 'Electric', 'Psychic'], [60, 'Electric', 'Rock'], [61, 'Electric', 'Steel'], [62, 'Electric', 'Water'], [63, 'Fairy', 'Fighting'], [64, 'Fairy', 'Fire'], [65, 'Fairy', 'Flying'], [66, 'Fairy', 'Ghost'], [67, 'Fairy', 'Grass'], [68, 'Fairy', 'Ground'], [69, 'Fairy', 'Ice'], [70, 'Fairy', 'Normal'], [71, 'Fairy', 'Poison'], [72, 'Fairy', 'Psychic'], [73, 'Fairy', 'Rock'], [74, 'Fairy', 'Steel'], [75, 'Fairy', 'Water'], [76, 'Fighting', 'Fire'], [77, 'Fighting', 'Flying'], [78, 'Fighting', 'Ghost'], [79, 'Fighting', 'Grass'], [80, 'Fighting', 'Ground'], [81, 'Fighting', 'Ice'], [82, 'Fighting', 'Normal'], [83, 'Fighting', 'Poison'], [84, 'Fighting', 'Psychic'], [85, 'Fighting', 'Rock'], [86, 'Fighting', 'Steel'], [87, 'Fighting', 'Water'], [88, 'Fire', 'Flying'], [89, 'Fire', 'Ghost'], [90, 'Fire', 'Grass'], [91, 'Fire', 'Ground'], [92, 'Fire', 'Ice'], [93, 'Fire', 'Normal'], [94, 'Fire', 'Poison'], [95, 'Fire', 'Psychic'], [96, 'Fire', 'Rock'], [97, 'Fire', 'Steel'], [98, 'Fire', 'Water'], [99, 'Flying', 'Ghost'], [100, 'Flying', 'Grass'], [101, 'Flying', 'Ground'], [102, 'Flying', 'Ice'], [103, 'Flying', 'Normal'], [104, 'Flying', 'Poison'], [105, 'Flying', 'Psychic'], [106, 'Flying', 'Rock'], [107, 'Flying', 'Steel'], [108, 'Flying', 'Water'], [109, 'Ghost', 'Grass'], [110, 'Ghost', 'Ground'], [111, 'Ghost', 'Ice'], [112, 'Ghost', 'Normal'], [113, 'Ghost', 'Poison'], [114, 'Ghost', 'Psychic'], [115, 'Ghost', 'Rock'], [116, 'Ghost', 'Steel'], [117, 'Ghost', 'Water'], [118, 'Grass', 'Ground'], [119, 'Grass', 'Ice'], [120, 'Grass', 'Normal'], [121, 'Grass', 'Poison'], [122, 'Grass', 'Psychic'], [123, 'Grass', 'Rock'], [124, 'Grass', 'Steel'], [125, 'Grass', 'Water'], [126, 'Ground', 'Ice'], [127, 'Ground', 'Normal'], [128, 'Ground', 'Poison'], [129, 'Ground', 'Psychic'], [130, 'Ground', 'Rock'], [131, 'Ground', 'Steel'], [132, 'Ground', 'Water'], [133, 'Ice', 'Normal'], [134, 'Ice', 'Poison'], [135, 'Ice', 'Psychic'], [136, 'Ice', 'Rock'], [137, 'Ice', 'Steel'], [138, 'Ice', 'Water'], [139, 'Normal', 'Poison'], [140, 'Normal', 'Psychic'], [141, 'Normal', 'Rock'], [142, 'Normal', 'Steel'], [143, 'Normal', 'Water'], [144, 'Poison', 'Psychic'], [145, 'Poison', 'Rock'], [146, 'Poison', 'Steel'], [147, 'Poison', 'Water'], [148, 'Psychic', 'Rock'], [149, 'Psychic', 'Steel'], [150, 'Psychic', 'Water'], [151, 'Rock', 'Steel'], [152, 'Rock', 'Water'], [153, 'Steel', 'Water']]
+-------------------------------------------------
+# Calculate the total HP avg and total HP standard deviation
+hp_avg = hps.mean()
+hp_std = hps.std()
+
+# Use NumPy to eliminate the previous for loop
+z_scores = (hps - hp_avg)/hp_std
+
+# Combine names, hps, and z_scores
+poke_zscores2 = [*zip(names, hps, z_scores)]
+print(*poke_zscores2[:3], sep='\n')
+
+# Use list comprehension with the same logic as the highest_hp_pokemon code block
+highest_hp_pokemon2 = [(name,hp,zscore) for name,hp,zscore in poke_zscores2 if zscore > 2]
+print(*highest_hp_pokemon2, sep='\n')
+
+('Abomasnow', 80.0, 0.46797638117739043)
+('Abra', 60.0, -0.3271693284337512)
+('Absol', 131.0, 2.4955979406858013)
+
+('Absol', 131.0, 2.4955979406858013)
+('Bonsly', 127.0, 2.3365687987635733)
+('Caterpie', 122.0, 2.137782371360788)
+('Cofagrigus', 133.0, 2.575112511646916)
+('Cresselia', 126.0, 2.296811513283016)
+('Dewgong', 122.0, 2.137782371360788)
+('Druddigon', 126.0, 2.296811513283016)
+('Froakie', 123.0, 2.1775396568413448)
+('Kadabra', 135.0, 2.65462708260803)
+('Klang', 123.0, 2.1775396568413448)
+('Kricketune', 122.0, 2.137782371360788)
+('Lumineon', 129.0, 2.4160833697246873)
+('Magnemite', 137.0, 2.734141653569144)
+('Nidorina', 119.0, 2.0185105149191167)
+('Onix', 126.0, 2.296811513283016)
+('Prinplup', 124.0, 2.217296942321902)
+('Skuntank', 128.0, 2.3763260842441305)
+('Swellow', 125.0, 2.2570542278024592)
+===================================================================================================
+
+Basic pandas optimizations
+
+Intro to pandas DataFrame iteration
+
+  Team League  Year   RS   RA   W    G  Playoffs
+0  PIT     NL  2012  651  674  79  162         0
+1  PIT     NL  2011  610  712  72  162         0
+2  PIT     NL  2010  587  866  57  162         0
+3  PIT     NL  2009  636  768  62  161         0
+4  PIT     NL  2008  735  884  67  162         0
+
+# Iterate over pit_df and print each row
+for i,row in pit_df.iterrows():
+    print(row)
+
+Team         PIT
+League        NL
+Year        2012
+RS           651
+RA           674
+W             79
+G            162
+Playoffs       0
+Name: 0, dtype: object
+Team         PIT
+League        NL
+Year        2011
+RS           610
+RA           712
+W             72
+G            162
+Playoffs       0
+Name: 1, dtype: object
+Team         PIT
+League        NL
+Year        2010
+RS           587
+RA           866
+W             57
+G            162
+Playoffs       0
+Name: 2, dtype: object
+Team         PIT
+League        NL
+Year        2009
+RS           636
+RA           768
+W             62
+G            161
+Playoffs       0
+Name: 3, dtype: object
+Team         PIT
+League        NL
+Year        2008
+RS           735
+RA           884
+W             67
+G            162
+Playoffs       0
+Name: 4, dtype: object
+-------------------------------------------------
+# Iterate over pit_df and print each index variable and then each row
+for i,row in pit_df.iterrows():
+    print(i)
+    print(row)
+    print(type(row))
+
+0
+Team         PIT
+League        NL
+Year        2012
+RS           651
+RA           674
+W             79
+G            162
+Playoffs       0
+Name: 0, dtype: object
+<class 'pandas.core.series.Series'>
+1
+Team         PIT
+League        NL
+Year        2011
+RS           610
+RA           712
+W             72
+G            162
+Playoffs       0
+Name: 1, dtype: object
+<class 'pandas.core.series.Series'>
+2
+Team         PIT
+League        NL
+Year        2010
+RS           587
+RA           866
+W             57
+G            162
+Playoffs       0
+Name: 2, dtype: object
+<class 'pandas.core.series.Series'>
+3
+Team         PIT
+League        NL
+Year        2009
+RS           636
+RA           768
+W             62
+G            161
+Playoffs       0
+Name: 3, dtype: object
+<class 'pandas.core.series.Series'>
+4
+Team         PIT
+League        NL
+Year        2008
+RS           735
+RA           884
+W             67
+G            162
+Playoffs       0
+Name: 4, dtype: object
+<class 'pandas.core.series.Series'>
+-------------------------------------------------
+# Use one variable instead of two to store the result of .iterrows()
+for row_tuple in pit_df.iterrows():
+    print(row_tuple)
+
+(0, Team         PIT
+League        NL
+Year        2012
+RS           651
+RA           674
+W             79
+G            162
+Playoffs       0
+Name: 0, dtype: object)
+(1, Team         PIT
+League        NL
+Year        2011
+RS           610
+RA           712
+W             72
+G            162
+Playoffs       0
+Name: 1, dtype: object)
+(2, Team         PIT
+League        NL
+Year        2010
+RS           587
+RA           866
+W             57
+G            162
+Playoffs       0
+Name: 2, dtype: object)
+(3, Team         PIT
+League        NL
+Year        2009
+RS           636
+RA           768
+W             62
+G            161
+Playoffs       0
+Name: 3, dtype: object)
+(4, Team         PIT
+League        NL
+Year        2008
+RS           735
+RA           884
+W             67
+G            162
+Playoffs       0
+Name: 4, dtype: object)
+-------------------------------------------------
+# Print the row and type of each row
+for row_tuple in pit_df.iterrows():
+    print(row_tuple)
+    print(type(row_tuple))
+
+(0, Team         PIT
+League        NL
+Year        2012
+RS           651
+RA           674
+W             79
+G            162
+Playoffs       0
+Name: 0, dtype: object)
+<class 'tuple'>
+(1, Team         PIT
+League        NL
+Year        2011
+RS           610
+RA           712
+W             72
+G            162
+Playoffs       0
+Name: 1, dtype: object)
+<class 'tuple'>
+(2, Team         PIT
+League        NL
+Year        2010
+RS           587
+RA           866
+W             57
+G            162
+Playoffs       0
+Name: 2, dtype: object)
+<class 'tuple'>
+(3, Team         PIT
+League        NL
+Year        2009
+RS           636
+RA           768
+W             62
+G            161
+Playoffs       0
+Name: 3, dtype: object)
+<class 'tuple'>
+(4, Team         PIT
+League        NL
+Year        2008
+RS           735
+RA           884
+W             67
+G            162
+Playoffs       0
+Name: 4, dtype: object)
+<class 'tuple'>
+-------------------------------------------------
+  Team League  Year   RS   RA   W    G  Playoffs
+0  SFG     NL  2012  718  649  94  162         1
+1  SFG     NL  2011  570  578  86  162         0
+2  SFG     NL  2010  697  583  92  162         1
+3  SFG     NL  2009  657  611  88  162         0
+4  SFG     NL  2008  640  759  72  162         0
+# Create an empty list to store run differentials
+run_diffs = []
+
+# Write a for loop and collect runs allowed and runs scored for each row
+for i,row in giants_df.iterrows():
+    runs_scored = row['RS']
+    runs_allowed = row['RA']
+    
+    # Use the provided function to calculate run_diff for each row
+    run_diff = calc_run_diff(runs_scored, runs_allowed)
+    
+    # Append each run differential to the output list
+    run_diffs.append(run_diff)
+
+giants_df['RD'] = run_diffs
+print(giants_df)
+
+  Team League  Year   RS   RA   W    G  Playoffs   RD
+0  SFG     NL  2012  718  649  94  162         1   69
+1  SFG     NL  2011  570  578  86  162         0   -8
+2  SFG     NL  2010  697  583  92  162         1  114
+3  SFG     NL  2009  657  611  88  162         0   46
+4  SFG     NL  2008  640  759  72  162         0 -119
+-------------------------------------------------
+
+Another iterator method: .itertuples()
+
+# Loop over the DataFrame and print each row
+for i in rangers_df.itertuples():
+  print(i)
+
+Pandas(Index=0, Team='TEX', League='AL', Year=2012, RS=808, RA=707, W=93, G=162, Playoffs=1)
+Pandas(Index=1, Team='TEX', League='AL', Year=2011, RS=855, RA=677, W=96, G=162, Playoffs=1)
+Pandas(Index=2, Team='TEX', League='AL', Year=2010, RS=787, RA=687, W=90, G=162, Playoffs=1)
+Pandas(Index=3, Team='TEX', League='AL', Year=2009, RS=784, RA=740, W=87, G=162, Playoffs=0)
+Pandas(Index=4, Team='TEX', League='AL', Year=2008, RS=901, RA=967, W=79, G=162, Playoffs=0)
+Pandas(Index=5, Team='TEX', League='AL', Year=2007, RS=816, RA=844, W=75, G=162, Playoffs=0)
+...
+-------------------------------------------------
+# Loop over the DataFrame and print each row's Index, Year and Wins (W)
+for row in rangers_df.itertuples():
+  i = row.Index
+  year = row.Year
+  wins = row.W
+  print(i, year, wins)
+
+0 2012 93
+1 2011 96
+2 2010 90
+3 2009 87
+...
+-------------------------------------------------
+# Loop over the DataFrame and print each row's Index, Year and Wins (W)
+for row in rangers_df.itertuples():
+  i = row.Index
+  year = row.Year
+  wins = row.W
+  
+  # Check if rangers made Playoffs (1 means yes; 0 means no)
+  if row.Playoffs == 1:
+    print(i, year, wins)
+
+0 2012 93
+1 2011 96
+2 2010 90
+13 1999 95
+14 1998 88
+16 1996 90
+-------------------------------------------------
+run_diffs = []
+
+# Loop over the DataFrame and calculate each row's run differential
+for i in yankees_df.itertuples():
+    
+    runs_scored = i.RS
+    runs_allowed = i.RA
+-------------------------------------------------
+run_diffs = []
+
+# Loop over the DataFrame and calculate each row's run differential
+for row in yankees_df.itertuples():
+    
+    runs_scored = row.RS
+    runs_allowed = row.RA
+
+    run_diff = calc_run_diff(runs_scored, runs_allowed)
+    
+    run_diffs.append(run_diff)
+
+# Append new column
+yankees_df['RD'] = run_diffs
+print(yankees_df)
+
+   Team League  Year   RS   RA    W    G  Playoffs   RD
+0   NYY     AL  2012  804  668   95  162         1  136
+1   NYY     AL  2011  867  657   97  162         1  210
+2   NYY     AL  2010  859  693   95  162         1  166
+3   NYY     AL  2009  915  753  103  162         1  162
+...
+-------------------------------------------------
+
+pandas alternative to looping
+
+       RS   RA   W  Playoffs
+2012  697  577  90         0
+2011  707  614  91         1
+2010  802  649  96         1
+2009  803  754  84         0
+2008  774  671  97         1
+
+# Gather sum of all columns
+stat_totals = rays_df.apply(lambda i: sum(i), axis=0)
+print(stat_totals)
+
+RS          3783
+RA          3265
+W            458
+Playoffs       3
+dtype: int64
+-------------------------------------------------
+# Gather total runs scored in all games per year
+total_runs_scored = rays_df[['RS', 'RA']].apply(lambda i: sum(i), axis=1)
+print(total_runs_scored)
+
+2012    1274
+2011    1321
+2010    1451
+2009    1557
+2008    1445
+dtype: int64
+-------------------------------------------------
+# Convert numeric playoffs to text by applying text_playoffs()
+textual_playoffs = rays_df.apply(lambda row: text_playoffs(row['Playoffs']), axis=1)
+print(textual_playoffs)
+
+2012     No
+2011    Yes
+2010    Yes
+2009     No
+2008    Yes
+dtype: object
+-------------------------------------------------
+# Display the first five rows of the DataFrame
+print(dbacks_df.head())
+
+# Create a win percentage Series 
+win_percs = dbacks_df.apply(lambda row: calc_win_perc(row['W'], row['G']), axis=1)
+print(win_percs, '\n')
+
+# Append a new column to dbacks_df
+dbacks_df['WP'] = win_percs
+print(dbacks_df, '\n')
+
+# Display dbacks_df where WP is greater than 0.50
+print(dbacks_df[dbacks_df['WP'] >= 0.50])
+
+  Team League  Year   RS   RA   W    G  Playoffs
+0  ARI     NL  2012  734  688  81  162         0
+1  ARI     NL  2011  731  662  94  162         1
+2  ARI     NL  2010  713  836  65  162         0
+...
+
+0     0.50
+1     0.58
+2     0.40
+3     0.43
+...
+dtype: float64 
+
+   Team League  Year   RS   RA    W    G  Playoffs    WP
+0   ARI     NL  2012  734  688   81  162         0  0.50
+1   ARI     NL  2011  731  662   94  162         1  0.58
+2   ARI     NL  2010  713  836   65  162         0  0.40
+3   ARI     NL  2009  720  782   70  162         0  0.43
+...
+
+   Team League  Year   RS   RA    W    G  Playoffs    WP
+0   ARI     NL  2012  734  688   81  162         0  0.50
+1   ARI     NL  2011  731  662   94  162         1  0.58
+4   ARI     NL  2008  720  706   82  162         0  0.51
+...
+-------------------------------------------------
+
+Optimal pandas iterating
+
+# Use the W array and G array to calculate win percentages
+win_percs_np = calc_win_perc(baseball_df['W'].values, baseball_df['G'].values)
+
+# Append a new column to baseball_df that stores all win percentages
+baseball_df['WP'] = win_percs_np
+
+print(baseball_df.head())
+
+  Team League  Year   RS   RA   W    G  Playoffs    WP
+0  ARI     NL  2012  734  688  81  162         0  0.50
+1  ATL     NL  2012  700  600  94  162         1  0.58
+2  BAL     AL  2012  712  705  93  162         1  0.57
+3  BOS     AL  2012  734  806  69  162         0  0.43
+4  CHC     NL  2012  613  759  61  162         0  0.38
+-------------------------------------------------
+OrderedDict([('Team', 'Abbreviated team name'),
+             ('League', 'Specifies National League or American League'),
+             ('Year', "Each season's year"),
+             ('RS', 'Runs scored in a season'),
+             ('RA', 'Runs allowed in a season'),
+             ('W', 'Wins in a season'),
+             ('G', 'Games played in a season'),
+             ('Playoffs', '`1` if a team made the playoffs; `0` if they did not'),
+             ('WP', 'True win percentage for a season')])
+
+win_perc_preds_loop = []
+
+# Use a loop and .itertuples() to collect each row's predicted win percentage
+for row in baseball_df.itertuples():
+    runs_scored = row.RS
+    runs_allowed = row.RA
+    win_perc_pred = predict_win_perc(runs_scored, runs_allowed)
+    win_perc_preds_loop.append(win_perc_pred)
+
+# Apply predict_win_perc to each row of the DataFrame
+win_perc_preds_apply = baseball_df.apply(lambda row: predict_win_perc(row['RS'], row['RA']), axis=1)
+
+# Calculate the win percentage predictions using NumPy arrays
+win_perc_preds_np = predict_win_perc(baseball_df['RS'].values, baseball_df['RA'].values)
+baseball_df['WP_preds'] = win_perc_preds_np
+print(baseball_df.head())
+
+  Team League  Year   RS   RA   W    G  Playoffs    WP  WP_preds
+0  ARI     NL  2012  734  688  81  162         0  0.50      0.53
+1  ATL     NL  2012  700  600  94  162         1  0.58      0.58
+2  BAL     AL  2012  712  705  93  162         1  0.57      0.50
+3  BOS     AL  2012  734  806  69  162         0  0.43      0.45
+4  CHC     NL  2012  613  759  61  162         0  0.38      0.39
+===================================================================================================
