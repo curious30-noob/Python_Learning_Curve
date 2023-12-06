@@ -1,0 +1,932 @@
+===================================================================================================
+
+Importing Data from Flat Files
+
+===================================================================================================
+
+Introduction to flat files
+
+# Import pandas as pd
+import pandas as pd
+
+# Read the CSV and assign it to the variable data
+data = pd.read_csv('vt_tax_data_2016.csv')
+
+# View the first few lines of data
+print(data.head())
+
+   STATEFIPS STATE  zipcode  agi_stub      N1  ...  A85300  N11901  A11901  N11902  A11902
+0         50    VT        0         1  111580  ...       0   10820    9734   88260  138337
+1         50    VT        0         2   82760  ...       0   12820   20029   68760  151729
+2         50    VT        0         3   46270  ...       0   10810   24499   34600   90583
+3         50    VT        0         4   30070  ...       0    7320   21573   21300   67045
+4         50    VT        0         5   39530  ...       0   12500   67761   23320  103034
+
+[5 rows x 147 columns]
+-------------------------------------------------
+# Import pandas with the alias pd
+import pandas as pd
+
+# Load TSV using the sep keyword argument to set delimiter
+data = pd.read_csv('vt_tax_data_2016.tsv', sep='\t')
+
+# Plot the total number of tax returns by income group
+counts = data.groupby("agi_stub").N1.sum()
+counts.plot.bar()
+plt.show()
+
+-------------------------------------------------
+
+Modifying flat file imports
+
+# Create list of columns to use
+cols = ['zipcode','agi_stub','mars1','MARS2','NUMDEP']
+
+# Create dataframe from csv using only selected columns
+data = pd.read_csv("vt_tax_data_2016.csv", usecols=cols)
+
+# View counts of dependents and tax returns by income level
+print(data.groupby("agi_stub").sum())
+
+          zipcode   mars1  MARS2  NUMDEP
+agi_stub                                
+1         1439444  170320  28480   52490
+2         1439444  104000  37690   64660
+3         1439444   39160  45390   47330
+4         1439444   11670  44410   37760
+5         1439444    7820  67750   60730
+6         1439444    1210  16340   16300
+-------------------------------------------------
+# Create dataframe of next 500 rows with labeled columns
+vt_data_next500 = pd.read_csv("vt_tax_data_2016.csv", 
+                       		  nrows=500,
+                       		  skiprows=500,
+                       		  header=None,
+                       		  names=list(vt_data_first500))
+
+# View the Vermont dataframes to confirm they're different
+print(vt_data_first500.head())
+print(vt_data_next500.head())
+
+   STATEFIPS STATE  zipcode  agi_stub      N1  ...  A85300  N11901  A11901  N11902  A11902
+0         50    VT        0         1  111580  ...       0   10820    9734   88260  138337
+1         50    VT        0         2   82760  ...       0   12820   20029   68760  151729
+2         50    VT        0         3   46270  ...       0   10810   24499   34600   90583
+3         50    VT        0         4   30070  ...       0    7320   21573   21300   67045
+4         50    VT        0         5   39530  ...       0   12500   67761   23320  103034
+
+[5 rows x 147 columns]
+
+   STATEFIPS STATE  zipcode  agi_stub   N1  ...  A85300  N11901  A11901  N11902  A11902
+0         50    VT     5356         2  180  ...       0      50      76     130     212
+1         50    VT     5356         3   80  ...       0      40     142      50     148
+2         50    VT     5356         4   50  ...       0       0       0      30      87
+3         50    VT     5356         5   80  ...       0      30     531      30     246
+4         50    VT     5356         6    0  ...       0       0       0       0       0
+
+[5 rows x 147 columns]
+-------------------------------------------------
+
+Handling errors and missing data
+
+# Load csv with no additional arguments
+data = pd.read_csv("vt_tax_data_2016.csv")
+
+# Print the data types
+print(data.dtypes)
+
+STATEFIPS     int64
+STATE        object
+              ...  
+N11902        int64
+A11902        int64
+Length: 147, dtype: object
+-------------------------------------------------
+# Create dict specifying data types for agi_stub and zipcode
+data_types = {'agi_stub': 'category',
+			  'zipcode': 'object'}
+
+# Load csv using dtype to set correct data types
+data = pd.read_csv("vt_tax_data_2016.csv", dtype=data_types)
+
+# Print data types of resulting frame
+print(data.dtypes.head())
+
+STATEFIPS       int64
+STATE          object
+zipcode        object
+agi_stub     category
+N1              int64
+dtype: object
+-------------------------------------------------
+# Create dict specifying that 0s in zipcode are NA values
+null_values = {'zipcode' : 0}
+
+# Load csv using na_values keyword argument
+data = pd.read_csv("vt_tax_data_2016.csv", 
+                   na_values=null_values)
+
+# View rows with NA ZIP codes
+print(data[data.zipcode.isna()])
+
+   STATEFIPS STATE  zipcode  agi_stub      N1  ...  A85300  N11901  A11901  N11902  A11902
+0         50    VT      NaN         1  111580  ...       0   10820    9734   88260  138337
+1         50    VT      NaN         2   82760  ...       0   12820   20029   68760  151729
+2         50    VT      NaN         3   46270  ...       0   10810   24499   34600   90583
+3         50    VT      NaN         4   30070  ...       0    7320   21573   21300   67045
+4         50    VT      NaN         5   39530  ...       0   12500   67761   23320  103034
+5         50    VT      NaN         6    9620  ...   20428    3900   93123    2870   39425
+
+[6 rows x 147 columns]
+-------------------------------------------------
+try:
+  # Set warn_bad_lines to issue warnings about bad records
+  data = pd.read_csv("vt_tax_data_2016_corrupt.csv", 
+                     error_bad_lines=False, 
+                     warn_bad_lines=True)
+  
+  # View first 5 records
+  print(data.head())
+  
+except pd.errors.ParserError:
+    print("Your data contained rows that could not be parsed.")
+Skipping line 5: expected 147 fields, saw 148
+Skipping line 9: expected 147 fields, saw 148
+Skipping line 51: expected 147 fields, saw 148
+
+   STATEFIPS STATE  zipcode  agi_stub      N1  ...  A85300  N11901  A11901  N11902  A11902
+0         50    VT        0         1  111580  ...       0   10820    9734   88260  138337
+1         50    VT        0         2   82760  ...       0   12820   20029   68760  151729
+2         50    VT        0         3   46270  ...       0   10810   24499   34600   90583
+3         50    VT        0         5   39530  ...       0   12500   67761   23320  103034
+4         50    VT        0         6    9620  ...   20428    3900   93123    2870   39425
+
+[5 rows x 147 columns]
+===================================================================================================
+
+Importing Data From Excel Files
+
+===================================================================================================
+
+Introduction to spreadsheets
+
+# Load pandas as pd
+import pandas as pd
+
+# Read spreadsheet and assign it to survey_responses
+survey_responses = pd.read_excel('fcc_survey.xlsx')
+
+# View the head of the dataframe
+print(survey_responses.head())
+
+    Age  AttendedBootcamp  BootcampFinish  BootcampLoanYesNo BootcampName  ...  ResourceUdemy  ResourceW3Schools                             SchoolDegree              SchoolMajor  StudentDebtOwe
+0  28.0               0.0             NaN                NaN          NaN  ...            NaN                NaN           some college credit, no degree                      NaN           20000
+1  22.0               0.0             NaN                NaN          NaN  ...            1.0                NaN           some college credit, no degree                      NaN             NaN
+2  19.0               0.0             NaN                NaN          NaN  ...            NaN                NaN  high school diploma or equivalent (GED)                      NaN             NaN
+3  26.0               0.0             NaN                NaN          NaN  ...            NaN                NaN                        bachelor's degree  Cinematography And Film            7000
+4  20.0               0.0             NaN                NaN          NaN  ...            NaN                NaN           some college credit, no degree                      NaN             NaN
+
+[5 rows x 98 columns]
+-------------------------------------------------
+# Create string of lettered columns to load
+col_string = 'AD, AW:BA'
+
+# Load data with skiprows and usecols set
+survey_responses = pd.read_excel("fcc_survey_headers.xlsx", 
+                        skiprows=2, 
+                        usecols=col_string)
+
+# View the names of the columns selected
+print(survey_responses.columns)
+
+Index(['ExpectedEarning', 'JobApplyWhen', 'JobPref', 'JobRelocateYesNo', 'JobRoleInterest', 'JobWherePref'], dtype='object')
+-------------------------------------------------
+
+Getting data from multiple worksheets
+
+# Create df from second worksheet by referencing its name
+responses_2017 = pd.read_excel("fcc_survey.xlsx",
+                               sheet_name='2017')
+
+# Graph where people would like to get a developer job
+job_prefs = responses_2017.groupby("JobPref").JobPref.count()
+job_prefs.plot.barh()
+plt.show()
+
+-------------------------------------------------
+# Load both the 2016 and 2017 sheets by name
+all_survey_data = pd.read_excel("fcc_survey.xlsx",
+                                sheet_name=['2016','2017'])
+
+# View the data type of all_survey_data
+print(type(all_survey_data))
+
+<class 'dict'>
+-------------------------------------------------
+# Load all sheets in the Excel file
+all_survey_data = pd.read_excel("fcc_survey.xlsx",
+                                sheet_name=[0,'2017'])
+
+# View the sheet names in all_survey_data
+print(all_survey_data.keys())
+
+dict_keys([0, '2017'])
+-------------------------------------------------
+# Load all sheets in the Excel file
+all_survey_data = pd.read_excel("fcc_survey.xlsx",
+                                sheet_name=None)
+
+# View the sheet names in all_survey_data
+print(all_survey_data.keys())
+
+dict_keys(['2016', '2017'])
+-------------------------------------------------
+# Create an empty dataframe
+all_responses = pd.DataFrame()
+
+# Set up for loop to iterate through values in responses
+for df in responses.values():
+  # Print the number of rows being added
+  print("Adding {} rows".format(df.shape[0]))
+  # Append df to all_responses, assign result
+  all_responses = all_responses.append(df)
+
+# Graph employment statuses in sample
+counts = all_responses.groupby("EmploymentStatus").EmploymentStatus.count()
+counts.plot.barh()
+plt.show()
+
+Adding 1000 rows
+Adding 1000 rows
+-------------------------------------------------
+
+Modifying imports: true/false data
+
+# Load the data
+survey_data = pd.read_excel("fcc_survey_subset.xlsx")
+
+# Count NA values in each column
+print(survey_data.isna().sum())
+
+ID.x                        0
+HasDebt                     0
+HasFinancialDependents      7
+HasHomeMortgage           499
+HasStudentDebt            502
+dtype: int64
+-------------------------------------------------
+# Set dtype to load appropriate column(s) as Boolean data
+survey_data = pd.read_excel("fcc_survey_subset.xlsx",
+                            dtype={'HasDebt' : bool})
+
+# View financial burdens by Boolean group
+print(survey_data.groupby('HasDebt').sum())
+
+         HasFinancialDependents  HasHomeMortgage  HasStudentDebt
+HasDebt                                                         
+False                     112.0              0.0             0.0
+True                      205.0            151.0           281.0
+-------------------------------------------------
+# Load file with Yes as a True value and No as a False value
+survey_subset = pd.read_excel("fcc_survey_yn_data.xlsx",
+                              dtype={"HasDebt": bool,
+                              "AttendedBootCampYesNo": bool},
+                              false_values=['No'],
+                              true_values=['Yes'])
+
+# View the data
+print(survey_subset.head())
+                               ID.x  AttendedBootCampYesNo  HasDebt  HasFinancialDependents  HasHomeMortgage  HasStudentDebt
+0  cef35615d61b202f1dc794ef2746df14                  False     True                     1.0              0.0             1.0
+1  323e5a113644d18185c743c241407754                  False    False                     0.0              NaN             NaN
+2  b29a1027e5cd062e654a63764157461d                  False    False                     0.0              NaN             NaN
+3  04a11e4bcb573a1261eb0d9948d32637                  False     True                     0.0              0.0             1.0
+4  9368291c93d5d5f5c8cdb1a575e18bec                  False     True                     0.0              0.0             0.0
+-------------------------------------------------
+
+Modifying imports: parsing dates
+
+# Load file, with Part1StartTime parsed as datetime data
+survey_data = pd.read_excel("fcc_survey.xlsx",
+                            parse_dates=['Part1StartTime'])
+
+# Print first few values of Part1StartTime
+print(survey_data.Part1StartTime.head())
+
+0   2016-03-29 21:23:13
+1   2016-03-29 21:24:59
+2   2016-03-29 21:25:37
+3   2016-03-29 21:21:37
+4   2016-03-29 21:26:22
+Name: Part1StartTime, dtype: datetime64[ns]
+-------------------------------------------------
+# Create dict of columns to combine into new datetime column
+datetime_cols = {"Part2Start": ['Part2StartDate', 'Part2StartTime']}
+
+
+# Load file, supplying the dict to parse_dates
+survey_data = pd.read_excel("fcc_survey_dts.xlsx",
+                            parse_dates=datetime_cols)
+
+# View summary statistics about Part2Start
+print(survey_data.Part2Start.describe())
+
+count                    1000
+unique                    985
+top       2016-03-30 07:27:25
+freq                        2
+first     2016-03-29 21:24:57
+last      2016-03-30 09:08:18
+Name: Part2Start, dtype: object
+===================================================================================================
+
+Importing Data from Databases
+
+===================================================================================================
+
+Introduction to databases
+
+# Import sqlalchemy's create_engine() function
+from sqlalchemy import create_engine
+
+# Create the database engine
+engine = create_engine('sqlite:///data.db')
+
+# View the tables in the database
+print(engine.table_names())
+
+['boro_census', 'hpd311calls', 'weather']
+-------------------------------------------------
+# Load libraries
+import pandas as pd
+from sqlalchemy import create_engine
+
+# Create the database engine
+engine = create_engine('sqlite:///data.db')
+
+# Load hpd311calls without any SQL
+hpd_calls = pd.read_sql('hpd311calls', engine)
+
+# View the first few rows of data
+print(hpd_calls.head())
+
+  unique_key created_date agency  complaint_type incident_zip      incident_address community_board    borough
+0   38070822   01/01/2018    HPD  HEAT/HOT WATER        10468    2786 JEROME AVENUE        07 BRONX      BRONX
+1   38065299   01/01/2018    HPD        PLUMBING        10003  323 EAST   12 STREET    03 MANHATTAN  MANHATTAN
+2   38066653   01/01/2018    HPD  HEAT/HOT WATER        10452  1235 GRAND CONCOURSE        04 BRONX      BRONX
+3   38070264   01/01/2018    HPD  HEAT/HOT WATER        10032  656 WEST  171 STREET    12 MANHATTAN  MANHATTAN
+4   38072466   01/01/2018    HPD  HEAT/HOT WATER        11213       1030 PARK PLACE     08 BROOKLYN   BROOKLYN
+-------------------------------------------------
+# Create the database engine
+engine = create_engine("sqlite:///data.db")
+
+# Create a SQL query to load the entire weather table
+query = """
+SELECT * 
+  FROM weather;
+"""
+
+# Load weather with the SQL query
+weather = pd.read_sql(query, engine)
+
+# View the first few rows of data
+print(weather.head())
+
+       station                         name  latitude  longitude  elevation  ...  prcp snow  tavg  tmax  tmin
+0  USW00094728  NY CITY CENTRAL PARK, NY US    40.779    -73.969       42.7  ...  0.00  0.0          52    42
+1  USW00094728  NY CITY CENTRAL PARK, NY US    40.779    -73.969       42.7  ...  0.00  0.0          48    39
+2  USW00094728  NY CITY CENTRAL PARK, NY US    40.779    -73.969       42.7  ...  0.00  0.0          48    42
+3  USW00094728  NY CITY CENTRAL PARK, NY US    40.779    -73.969       42.7  ...  0.00  0.0          51    40
+4  USW00094728  NY CITY CENTRAL PARK, NY US    40.779    -73.969       42.7  ...  0.75  0.0          61    50
+
+[5 rows x 13 columns]
+-------------------------------------------------
+
+Refining imports with SQL queries
+
+# Create database engine for data.db
+engine = create_engine('sqlite:///data.db')
+
+# Write query to get date, tmax, and tmin from weather
+query = """
+SELECT date, 
+       tmax, 
+       tmin
+  FROM weather;
+"""
+
+# Make a dataframe by passing query and engine to read_sql()
+temperatures = pd.read_sql(query, engine)
+
+# View the resulting dataframe
+print(temperatures)
+           date  tmax  tmin
+0    12/01/2017    52    42
+1    12/02/2017    48    39
+..          ...   ...   ...
+119  03/30/2018    62    44
+120  03/31/2018    58    39
+
+[121 rows x 3 columns]
+-------------------------------------------------
+# Create query to get hpd311calls records about safety
+query = """
+SELECT *
+FROM hpd311calls
+WHERE complaint_type = 'SAFETY';
+"""
+
+# Query the database and assign result to safety_calls
+safety_calls = pd.read_sql(query, engine)
+
+# Graph the number of safety calls by borough
+call_counts = safety_calls.groupby('borough').unique_key.count()
+call_counts.plot.barh()
+plt.show()
+
+-------------------------------------------------
+# Create query for records with max temps <= 32 or snow >= 1
+query = """
+SELECT *
+  FROM weather
+  WHERE tmax <= 32 OR snow >= 1;
+"""
+
+# Query database and assign result to wintry_days
+wintry_days = pd.read_sql(query, engine)
+
+# View summary stats about the temperatures
+print(wintry_days.describe())
+
+        latitude  longitude  elevation    awnd    prcp    snow    tmax    tmin
+count  2.500e+01  2.500e+01  2.500e+01  25.000  25.000  25.000  25.000  25.000
+mean   4.078e+01 -7.397e+01  4.270e+01   7.740   0.176   1.332  27.320  17.160
+std    7.252e-15  1.450e-14  7.252e-15   2.622   0.369   2.685   7.122   7.674
+min    4.078e+01 -7.397e+01  4.270e+01   3.130   0.000   0.000  13.000   5.000
+25%    4.078e+01 -7.397e+01  4.270e+01   5.820   0.000   0.000  22.000  11.000
+50%    4.078e+01 -7.397e+01  4.270e+01   7.830   0.000   0.000  28.000  17.000
+75%    4.078e+01 -7.397e+01  4.270e+01   9.170   0.090   1.200  31.000  20.000
+max    4.078e+01 -7.397e+01  4.270e+01  12.970   1.410   9.800  40.000  33.000
+-------------------------------------------------
+
+More complex SQL queries
+
+# Create query for unique combinations of borough and complaint_type
+query = """
+SELECT DISTINCT borough, 
+       complaint_type
+  FROM hpd311calls;
+"""
+
+# Load results of query to a dataframe
+issues_and_boros = pd.read_sql(query, engine)
+
+# Check assumption about issues and boroughs
+print(issues_and_boros)
+
+          borough    complaint_type
+0           BRONX    HEAT/HOT WATER
+1       MANHATTAN          PLUMBING
+2       MANHATTAN    HEAT/HOT WATER
+..            ...               ...
+63  STATEN ISLAND            SAFETY
+64  STATEN ISLAND  OUTSIDE BUILDING
+
+[65 rows x 2 columns]
+-------------------------------------------------
+# Create query to get call counts by complaint_type
+query = """
+SELECT complaint_type, 
+     COUNT(*)
+  FROM hpd311calls
+  GROUP BY complaint_type;
+"""
+
+# Create dataframe of call counts by issue
+calls_by_issue = pd.read_sql(query, engine)
+
+# Graph the number of calls for each housing issue
+calls_by_issue.plot.barh(x="complaint_type")
+plt.show()
+
+-------------------------------------------------
+# Create a query to get month and max tmax by month
+query = """
+SELECT month, 
+       MAX(tmax)
+  FROM weather 
+  GROUP BY month;"""
+
+# Get dataframe of monthly weather stats
+weather_by_month = pd.read_sql(query, engine)
+
+# View weather stats by month
+print(weather_by_month)
+
+      month  MAX(tmax)
+0  December         61
+1  February         78
+2   January         61
+3     March         62
+-------------------------------------------------
+# Create a query to get month, max tmax, and min tmin by month
+query = """
+SELECT month, 
+	   MAX(tmax), 
+       MIN(tmin)
+  FROM weather 
+ GROUP BY month;
+"""
+
+# Get dataframe of monthly weather stats
+weather_by_month = pd.read_sql(query, engine)
+
+# View weather stats by month
+print(weather_by_month)
+
+      month  MAX(tmax)  MIN(tmin)
+0  December         61          9
+1  February         78         16
+2   January         61          5
+3     March         62         27
+-------------------------------------------------
+# Create query to get temperature and precipitation by month
+query = """
+SELECT month, 
+        MAX(tmax), 
+        MIN(tmin),
+        SUM(prcp)
+  FROM weather 
+ GROUP BY month;
+"""
+
+# Get dataframe of monthly weather stats
+weather_by_month = pd.read_sql(query, engine)
+
+# View weather stats by month
+print(weather_by_month)
+
+      month  MAX(tmax)  MIN(tmin)  SUM(prcp)
+0  December         61          9       2.21
+1  February         78         16       5.83
+2   January         61          5       2.18
+3     March         62         27       5.17
+-------------------------------------------------
+
+Loading multiple tables with joins
+
+# Query to join weather to call records by date columns
+query = """
+SELECT * 
+  FROM hpd311calls
+  JOIN weather 
+  ON hpd311calls.created_date = weather.date;
+"""
+
+# Create dataframe of joined tables
+calls_with_weather = pd.read_sql(query, engine)
+
+# View the dataframe to make sure all columns were joined
+print(calls_with_weather.head())
+
+  unique_key created_date agency  complaint_type incident_zip  ... prcp snow tavg tmax tmin
+0   38070822   01/01/2018    HPD  HEAT/HOT WATER        10468  ...  0.0  0.0        19    7
+1   38065299   01/01/2018    HPD        PLUMBING        10003  ...  0.0  0.0        19    7
+2   38066653   01/01/2018    HPD  HEAT/HOT WATER        10452  ...  0.0  0.0        19    7
+3   38070264   01/01/2018    HPD  HEAT/HOT WATER        10032  ...  0.0  0.0        19    7
+4   38072466   01/01/2018    HPD  HEAT/HOT WATER        11213  ...  0.0  0.0        19    7
+
+[5 rows x 21 columns]
+-------------------------------------------------
+# Query to get hpd311calls and precipitation values
+query = """
+SELECT hpd311calls.*, weather.prcp
+  FROM hpd311calls
+  JOIN weather
+  ON hpd311calls.created_date = weather.date;"""
+
+# Load query results into the leak_calls dataframe
+leak_calls = pd.read_sql(query, engine)
+
+# View the dataframe
+print(leak_calls.head())
+  unique_key created_date agency  complaint_type incident_zip      incident_address community_board    borough  prcp
+0   38070822   01/01/2018    HPD  HEAT/HOT WATER        10468    2786 JEROME AVENUE        07 BRONX      BRONX   0.0
+1   38065299   01/01/2018    HPD        PLUMBING        10003  323 EAST   12 STREET    03 MANHATTAN  MANHATTAN   0.0
+2   38066653   01/01/2018    HPD  HEAT/HOT WATER        10452  1235 GRAND CONCOURSE        04 BRONX      BRONX   0.0
+3   38070264   01/01/2018    HPD  HEAT/HOT WATER        10032  656 WEST  171 STREET    12 MANHATTAN  MANHATTAN   0.0
+4   38072466   01/01/2018    HPD  HEAT/HOT WATER        11213       1030 PARK PLACE     08 BROOKLYN   BROOKLYN   0.0
+-------------------------------------------------
+# Query to get water leak calls and daily precipitation
+query = """
+SELECT hpd311calls.*, weather.prcp
+  FROM hpd311calls
+  JOIN weather
+    ON hpd311calls.created_date = weather.date
+  WHERE hpd311calls.complaint_type = 'WATER LEAK';"""
+
+# Load query results into the leak_calls dataframe
+leak_calls = pd.read_sql(query, engine)
+
+# View the dataframe
+print(leak_calls.head())
+  unique_key created_date agency complaint_type incident_zip         incident_address community_board   borough  prcp
+0   38074305   01/01/2018    HPD     WATER LEAK        11212     1026 WILLMOHR STREET     17 BROOKLYN  BROOKLYN   0.0
+1   38078748   01/01/2018    HPD     WATER LEAK        10458       2700 MARION AVENUE        07 BRONX     BRONX   0.0
+2   38081097   01/01/2018    HPD     WATER LEAK        11221  192 MALCOLM X BOULEVARD     03 BROOKLYN  BROOKLYN   0.0
+3   38077874   01/01/2018    HPD     WATER LEAK        11418    129-11 JAMAICA AVENUE       09 QUEENS    QUEENS   0.0
+4   38081110   01/01/2018    HPD     WATER LEAK        11420        111-17 133 STREET       10 QUEENS    QUEENS   0.0
+-------------------------------------------------
+# Query to get heat/hot water call counts by created_date
+query = """
+SELECT hpd311calls.created_date, 
+       COUNT(*)
+  FROM hpd311calls 
+  WHERE hpd311calls.complaint_type = 'HEAT/HOT WATER'
+  GROUP BY hpd311calls.created_date;
+"""
+
+# Query database and save results as df
+df = pd.read_sql(query, engine)
+
+# View first 5 records
+print(df.head())
+
+  created_date  COUNT(*)
+0   01/01/2018      4597
+1   01/02/2018      4362
+2   01/03/2018      3045
+3   01/04/2018      3374
+4   01/05/2018      4333
+-------------------------------------------------
+# Modify query to join tmax and tmin from weather by date
+query = """
+SELECT hpd311calls.created_date, 
+	   COUNT(*), 
+       weather.tmax,
+       weather.tmin
+  FROM hpd311calls 
+       JOIN weather
+       ON hpd311calls.created_date = weather.date
+ WHERE hpd311calls.complaint_type = 'HEAT/HOT WATER' 
+ GROUP BY hpd311calls.created_date;
+ """
+
+# Query database and save results as df
+df = pd.read_sql(query, engine)
+
+# View first 5 records
+print(df.head())
+
+  created_date  COUNT(*)  tmax  tmin
+0   01/01/2018      4597    19     7
+1   01/02/2018      4362    26    13
+2   01/03/2018      3045    30    16
+3   01/04/2018      3374    29    19
+4   01/05/2018      4333    19     9
+===================================================================================================
+
+Importing JSON Data and Working with APIs
+
+===================================================================================================
+
+Introduction to JSON
+
+# Load pandas as pd
+import pandas as pd
+
+# Load the daily report to a dataframe
+pop_in_shelters = pd.read_json('dhs_daily_report.json', orient='records')
+
+# View summary stats about pop_in_shelters
+print(pop_in_shelters.describe())
+
+       adult_families_in_shelter  adults_in_families_with_children_in_shelter  children_in_families_with_children_in_shelter  families_with_children_in_shelter  \
+count                   1000.000                                     1000.000                                       1000.000                           1000.000   
+mean                    2074.955                                    16487.932                                      23273.873                          11588.835   
+std                      148.020                                      848.364                                        926.244                            626.414   
+min                     1796.000                                    14607.000                                      21291.000                          10261.000   
+25%                     1906.000                                    15831.500                                      22666.000                          11060.000   
+50%                     2129.000                                    16836.000                                      23285.500                          11743.000   
+75%                     2172.250                                    17118.250                                      23610.000                          12146.000   
+max                     2356.000                                    17733.000                                      25490.000                          12413.000   
+
+       individuals_in_adult_families_in_shelter  ...  total_adults_in_shelter  total_children_in_shelter  total_individuals_in_families_with_children_in_shelter_  total_individuals_in_shelter  \
+count                                  1000.000  ...                 1000.000                   1000.000                                           1000.000                            1000.000   
+mean                                   4368.054  ...                32328.857                  23273.882                                          39761.805                           55602.739   
+std                                     299.054  ...                 2150.584                    926.247                                           1677.973                            2745.294   
+min                                    3811.000  ...                28127.000                  21291.000                                          35902.000                           49462.000   
+25%                                    4026.000  ...                30184.250                  22666.000                                          38775.500                           53196.500   
+50%                                    4473.000  ...                33142.000                  23285.500                                          40026.000                           56713.500   
+75%                                    4567.000  ...                33940.750                  23610.000                                          40529.500                           57872.250   
+max                                    4944.000  ...                35294.000                  25490.000                                          43208.000                           59068.000   
+
+       total_single_adults_in_shelter  
+count                        1000.000  
+mean                        11472.880  
+std                          1113.664  
+min                          9610.000  
+25%                         10381.750  
+50%                         11633.500  
+75%                         12437.500  
+max                         13270.000  
+
+[8 rows x 12 columns]
+-------------------------------------------------
+try:
+    # Load the JSON with orient specified
+    df = pd.read_json("dhs_report_reformatted.json",
+                      orient='split')
+    
+    # Plot total population in shelters over time
+    df["date_of_census"] = pd.to_datetime(df["date_of_census"])
+    df.plot(x="date_of_census", 
+            y="total_individuals_in_shelter")
+    plt.show()
+    
+except ValueError:
+    print("pandas could not parse the JSON.")
+-------------------------------------------------
+
+Introduction to APIs
+
+api_url = "https://api.yelp.com/v3/businesses/search"
+
+# Get data about NYC cafes from the Yelp API
+response = requests.get(api_url, 
+                headers=headers, 
+                params=params)
+
+# Extract JSON data from the response
+data = response.json()
+
+# Load data to a dataframe
+cafes = pd.DataFrame(data["businesses"])
+
+# View the data's dtypes
+print(cafes.dtypes)
+
+id                object
+alias             object
+name              object
+image_url         object
+is_closed           bool
+url               object
+review_count       int64
+categories        object
+rating           float64
+coordinates       object
+transactions      object
+location          object
+phone             object
+display_phone     object
+distance         float64
+price             object
+dtype: object
+-------------------------------------------------
+# Create dictionary to query API for cafes in NYC
+parameters = {'term': 'cafe',
+          	  'location': 'NYC'}
+
+# Query the Yelp API with headers and params set
+response = requests.get(api_url,
+                params=parameters,
+                headers=headers)
+
+# Extract JSON data from response
+data = response.json()
+
+# Load "businesses" values to a dataframe and print head
+cafes = pd.DataFrame(data['businesses'])
+print(cafes.head())
+
+                       id                        alias               name                                          image_url  is_closed  ...                                           location  \
+0  CBmrwh7jHn88M4v8Q9Qyyg       white-noise-brooklyn-2        White Noise  https://s3-media2.fl.yelpcdn.com/bphoto/rcNRZr...      False  ...  {'address1': '71 Smith St', 'address2': '', 'a...   
+1  NG-KlDcSjBk3pfdzjXmMVw          devocion-brooklyn-3           Devocion  https://s3-media1.fl.yelpcdn.com/bphoto/xEKPpn...      False  ...  {'address1': '276 Livingston St', 'address2': ...   
+2  pimuUR-TEHIjUla3S3jemQ   coffee-project-ny-new-york  Coffee Project NY  https://s3-media2.fl.yelpcdn.com/bphoto/2Wtg4i...      False  ...  {'address1': '239 E 5th St', 'address2': None,...   
+3  wTA00Dov2lFYXKnZ58eXAQ  spreadhouse-cafe-new-york-3   Spreadhouse Cafe  https://s3-media2.fl.yelpcdn.com/bphoto/YsBfwR...      False  ...  {'address1': '116 Suffolk St', 'address2': '',...   
+4  vijwGDNrPBJHEG7_DsjZNw             usagi-ny-dumbo-7           Usagi NY  https://s3-media2.fl.yelpcdn.com/bphoto/5gCxDD...      False  ...  {'address1': '163 Plymouth St', 'address2': ''...   
+
+          phone   display_phone  distance price  
+0                                1856.127   NaN  
+1  +17182856180  (718) 285-6180  2087.817    $$  
+2  +12122287888  (212) 228-7888  2435.843    $$  
+3  +16465246353  (646) 524-6353  1657.233     $  
+4  +17188018037  (718) 801-8037   635.782    $$  
+
+[5 rows x 16 columns]
+-------------------------------------------------
+# Create dictionary that passes Authorization and key string
+headers = {'Authorization': "Bearer {}".format(api_key)}
+
+# Query the Yelp API with headers and params set
+response = requests.get(api_url,
+                        params=params,
+                        headers=headers)
+
+
+
+# Extract JSON data from response
+data = response.json()
+
+# Load "businesses" values to a dataframe and print names
+cafes = pd.DataFrame(data['businesses'])
+print(cafes.name)
+
+0             Coffee Project NY
+1                Urban Backyard
+2              Saltwater Coffee
+3                 Bird & Branch
+4                  Bibble & Sip
+5             Coffee Project NY
+6                        Burrow
+7                   Cafe Patoro
+8                     Sweatshop
+9                       Round K
+10               Kobrick Coffee
+11            Kaigo Coffee Room
+12              Absolute Coffee
+13                     Devocion
+14                The Uncommons
+15                      Butler 
+16              Cafe Hanamizuki
+17    Brooklyn Roasting Company
+18             Takahachi Bakery
+19              Happy Bones NYC
+Name: name, dtype: object
+-------------------------------------------------
+# Load json_normalize()
+from pandas.io.json import json_normalize
+
+# Isolate the JSON data from the API response
+data = response.json()
+
+# Flatten business data into a dataframe, replace separator
+cafes = json_normalize(data["businesses"],
+             sep='_')
+
+# View data
+print(cafes.head())
+
+                       id                        alias               name                                          image_url  is_closed  ... location_zip_code  location_country location_state  \
+0  CBmrwh7jHn88M4v8Q9Qyyg       white-noise-brooklyn-2        White Noise  https://s3-media2.fl.yelpcdn.com/bphoto/rcNRZr...      False  ...             11201                US             NY   
+1  NG-KlDcSjBk3pfdzjXmMVw          devocion-brooklyn-3           Devocion  https://s3-media1.fl.yelpcdn.com/bphoto/xEKPpn...      False  ...             11201                US             NY   
+2  pimuUR-TEHIjUla3S3jemQ   coffee-project-ny-new-york  Coffee Project NY  https://s3-media2.fl.yelpcdn.com/bphoto/2Wtg4i...      False  ...             10003                US             NY   
+3  wTA00Dov2lFYXKnZ58eXAQ  spreadhouse-cafe-new-york-3   Spreadhouse Cafe  https://s3-media2.fl.yelpcdn.com/bphoto/YsBfwR...      False  ...             10002                US             NY   
+4  vijwGDNrPBJHEG7_DsjZNw             usagi-ny-dumbo-7           Usagi NY  https://s3-media2.fl.yelpcdn.com/bphoto/5gCxDD...      False  ...             11201                US             NY   
+
+                  location_display_address price  
+0        [71 Smith St, Brooklyn, NY 11201]   NaN  
+1  [276 Livingston St, Brooklyn, NY 11201]    $$  
+2       [239 E 5th St, New York, NY 10003]    $$  
+3     [116 Suffolk St, New York, NY 10002]     $  
+4       [163 Plymouth St, Dumbo, NY 11201]    $$  
+
+[5 rows x 24 columns]
+-------------------------------------------------
+# Load other business attributes and set meta prefix
+flat_cafes = json_normalize(data["businesses"],
+                            sep="_",
+                    		record_path="categories",
+                    		meta=['name', 
+                                  'alias',  
+                                  'rating',
+                          		  ['coordinates', 'latitude'], 
+                          		  ['coordinates', 'longitude']],
+                    		meta_prefix='biz_')
+
+
+
+
+
+# View the data
+print(flat_cafes.head())
+
+              alias              title           biz_name                   biz_alias biz_rating biz_coordinates_latitude biz_coordinates_longitude
+0            coffee       Coffee & Tea        White Noise      white-noise-brooklyn-2        4.5                   40.689                   -73.988
+1            coffee       Coffee & Tea           Devocion         devocion-brooklyn-3        4.0                   40.689                   -73.983
+2  coffeeroasteries  Coffee Roasteries           Devocion         devocion-brooklyn-3        4.0                   40.689                   -73.983
+3             cafes              Cafes           Devocion         devocion-brooklyn-3        4.0                   40.689                   -73.983
+4            coffee       Coffee & Tea  Coffee Project NY  coffee-project-ny-new-york        4.5                   40.727                   -73.989
+-------------------------------------------------
+
+Combining multiple datasets
+
+# Add an offset parameter to get cafes 51-100
+params = {"term": "cafe", 
+          "location": "NYC",
+          "sort_by": "rating", 
+          "limit": 50,
+          "offset": 50}
+
+result = requests.get(api_url, headers=headers, params=params)
+next_50_cafes = json_normalize(result.json()["businesses"])
+
+# Append the results, setting ignore_index to renumber rows
+cafes = top_50_cafes.append(next_50_cafes, ignore_index=True)
+
+# Print shape of cafes
+print(cafes.shape)
+
+(100, 24)
+===================================================================================================
